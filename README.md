@@ -68,7 +68,13 @@ DEFAULT_LLM_PROVIDER=deepseek
 - [Kimi](https://platform.moonshot.cn/)
 - [DeepSeek](https://platform.deepseek.com/)
 
-### 3. 启动服务
+### 3. 配置环境
+
+```bash
+bash setup.sh
+```
+
+### 4. 启动服务
 
 ```bash
 bash start-local.sh
