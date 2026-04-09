@@ -9,6 +9,11 @@
 
 ![image-20260409223959879](https://cdn.jsdelivr.net/gh/JoshuaChou2018/oss@main/uPic/VgwAjR.image-20260409223959879.png)
 
+
+
+https://github.com/user-attachments/assets/7f6de536-271a-4fa1-b179-7afa34c03354
+
+
 ## 🌐 在线演示
 
 **体验地址：https://humind.life**
