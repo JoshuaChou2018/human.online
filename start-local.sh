@@ -5,10 +5,10 @@
 echo "🚀 Starting Human.online in local mode..."
 
 # 检查 .env
-if [ ! -f ".env" ]; then
+if [ ! -f "apps/api/.env" ]; then
     echo "⚠️  Creating .env from template..."
-    cp .env.example .env
-    echo "⚠️  Please edit .env and add your API keys"
+    cp apps/api/.env.example apps/api/.env
+    echo "⚠️  Please edit apps/api/.env and add your API keys"
 fi
 
 # 只启动数据库（Docker）
@@ -30,14 +30,20 @@ fi
 echo "✅ Activating virtual environment..."
 source venv/bin/activate
 
+# 验证虚拟环境
+if [[ "$(which python)" != *"venv"* ]]; then
+    echo "❌ Virtual environment not activated properly!"
+    exit 1
+fi
+
 echo "📥 Installing Python dependencies..."
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 echo "🔄 Running database migrations..."
-alembic upgrade head 2>/dev/null || echo "⚠️  Migration skipped"
+python -m alembic upgrade head 2>/dev/null || echo "⚠️  Migration skipped"
 
 echo "🚀 Starting API server..."
-uvicorn main:app --reload --host 0.0.0.0 --port 8000 &
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000 &
 API_PID=$!
 
 cd ../web
