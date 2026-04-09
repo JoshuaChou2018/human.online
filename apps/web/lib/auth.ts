@@ -167,21 +167,28 @@ export async function login(email: string, password: string): Promise<{ token: s
 
 // Demo 登录
 export async function demoLogin(): Promise<{ token: string; user: User }> {
-  const response = await fetch(`${API_URL}/api/v1/auth/demo`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  try {
+    const response = await fetch(`${API_URL}/api/v1/auth/demo`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Demo login failed' }));
-    throw new Error(error.detail);
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: `请求失败: ${response.status}` }));
+      throw new Error(error.detail || 'Demo 登录失败');
+    }
+
+    const data = await response.json();
+    return {
+      token: data.access_token,
+      user: data.user,
+    };
+  } catch (err) {
+    if (err instanceof TypeError && err.message.includes('fetch')) {
+      throw new Error('无法连接到服务器，请确认后端服务已启动 (http://localhost:8000)');
+    }
+    throw err;
   }
-
-  const data = await response.json();
-  return {
-    token: data.access_token,
-    user: data.user,
-  };
 }

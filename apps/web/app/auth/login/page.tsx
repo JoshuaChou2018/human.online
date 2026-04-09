@@ -69,7 +69,9 @@ export default function LoginPage() {
       const redirect = searchParams.get('redirect');
       router.push(redirect || '/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Demo 登录失败');
+      const errorMsg = err instanceof Error ? err.message : 'Demo 登录失败';
+      setError(errorMsg);
+      console.error('Demo login error:', err);
     } finally {
       setIsLoading(false);
     }
