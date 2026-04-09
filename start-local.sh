@@ -19,6 +19,10 @@ docker-compose up -d postgres mongodb redis
 echo "⏳ Waiting for databases..."
 sleep 5
 
+# 创建 PostgreSQL 数据库（如果不存在）
+echo "🗄️  Creating database if not exists..."
+docker exec humanonline-postgres psql -U postgres -c "CREATE DATABASE humanonline;" 2>/dev/null || echo "Database already exists or will be created by migrations"
+
 # 检查 Python 环境
 cd apps/api
 
