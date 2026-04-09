@@ -9,7 +9,7 @@
 
 ![image-20260409223959879](https://cdn.jsdelivr.net/gh/JoshuaChou2018/oss@main/uPic/VgwAjR.image-20260409223959879.png)
 
-<video width="600" controls>   <source src="https://github.com/JoshuaChou2018/human.online/raw/refs/heads/main/media/simulation.mp4" type="video/mp4"> </video>
+https://github.com/JoshuaChou2018/human.online/raw/refs/heads/main/media/simulation.mp4
 
 ## 🌐 在线演示
 
@@ -71,7 +71,8 @@ DEFAULT_LLM_PROVIDER=deepseek
 ### 3. 配置环境
 
 ```bash
-bash setup.sh
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+bash Miniforge3-Linux-x86_64.sh
 ```
 
 ### 4. 启动服务
