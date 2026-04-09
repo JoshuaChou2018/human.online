@@ -135,3 +135,4 @@ MIT License © 2024 Human.online
 
 - **GitHub**: https://github.com/JoshuaChou2018/human.online
 - **演示**: https://humind.life
+- **Email:** juexiao.zhou@gmail.com
