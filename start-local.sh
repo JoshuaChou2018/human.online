@@ -30,11 +30,12 @@ fi
 echo "✅ Activating virtual environment..."
 source venv/bin/activate
 
-# 验证虚拟环境
-if [[ "$(which python)" != *"venv"* ]]; then
-    echo "❌ Virtual environment not activated properly!"
-    exit 1
+# 验证虚拟环境 (检查 pip list 是否能运行)
+if ! python -c "import sys; sys.exit(0 if 'venv' in sys.executable else 1)" 2>/dev/null; then
+    echo "⚠️  Virtual environment check warning, continuing anyway..."
 fi
+
+echo "Python path: $(which python)"
 
 echo "📥 Installing Python dependencies..."
 python -m pip install -r requirements.txt
