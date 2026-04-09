@@ -85,9 +85,11 @@ services:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://humind.life:8000
     container_name: humanonline-web
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+      - NEXT_PUBLIC_API_URL=http://humind.life:8000
     ports:
       - "3000:3000"
     volumes:
