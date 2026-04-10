@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/7f6de536-271a-4fa1-b179-7afa34c03354
 
 ## 🌐 在线演示
 
-**体验地址：https://humind.life**
+**体验地址：http://humind.life:3000**
 
 无需安装，立即体验数字分身构建和社会模拟！
 
@@ -144,5 +144,5 @@ MIT License © 2024 Human.online
 ## 📮 联系
 
 - **GitHub**: https://github.com/JoshuaChou2018/human.online
-- **演示**: https://humind.life
+- **演示**: http://humind.life:3000
 - **Email:** juexiao.zhou@gmail.com

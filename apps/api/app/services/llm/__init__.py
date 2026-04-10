@@ -71,7 +71,7 @@ def init_llm_clients():
             model=settings.DEEPSEEK_MODEL
         )
         llm_manager.register_client(
-            LLMProvider.OPENAI,  # 使用 OPENAI provider 类型
+            LLMProvider.DEEPSEEK,
             deepseek_client,
             is_default=(settings.DEFAULT_LLM_PROVIDER == "deepseek")
         )

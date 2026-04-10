@@ -115,7 +115,9 @@ export interface Message {
   conversationId: string;
   senderId: string;
   sender?: Avatar;
+  senderName?: string;
   content: string;
+  isUser?: boolean;  // 是否是用户发送的消息
   emotionState?: {
     pleasure: number;
     arousal: number;

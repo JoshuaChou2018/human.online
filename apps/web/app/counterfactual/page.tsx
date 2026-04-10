@@ -133,7 +133,7 @@ export default function CounterfactualPage() {
   // 加载历史场景
   const loadScenarios = useCallback(async () => {
     try {
-      const data = await apiRequest('/api/v1/counterfactual/scenarios');
+      const data = await apiRequest('/counterfactual/scenarios');
       setScenarios(data);
     } catch (error) {
       console.error('Failed to load scenarios:', error);
@@ -175,7 +175,7 @@ export default function CounterfactualPage() {
 
     setCreating(true);
     try {
-      const result = await apiRequest('/api/v1/counterfactual/scenarios', {
+      const result = await apiRequest('/counterfactual/scenarios', {
         method: 'POST',
         body: JSON.stringify({
           preset: selectedPreset || undefined,
@@ -187,7 +187,7 @@ export default function CounterfactualPage() {
       toast.success('反事实模拟运行完成！');
       
       // 加载详细结果
-      const detail = await apiRequest(`/api/v1/counterfactual/scenarios/${result.scenario_id}`);
+      const detail = await apiRequest(`/counterfactual/scenarios/${result.scenario_id}`);
       setActiveScenario(detail);
       setActiveTab('results');
       setCurrentRound(1);
@@ -208,7 +208,7 @@ export default function CounterfactualPage() {
     if (!confirm('确定要删除这个模拟场景吗？')) return;
 
     try {
-      await apiRequest(`/api/v1/counterfactual/scenarios/${id}`, {
+      await apiRequest(`/counterfactual/scenarios/${id}`, {
         method: 'DELETE'
       });
       toast.success('已删除');

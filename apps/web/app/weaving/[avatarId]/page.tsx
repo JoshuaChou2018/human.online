@@ -169,11 +169,11 @@ export default function WeavingPage() {
     const fetchData = async () => {
       try {
         // 获取分身信息
-        const avatarRes = await apiRequest(`/api/v1/avatars/${avatarId}`);
+        const avatarRes = await apiRequest(`/avatars/${avatarId}`);
         setAvatar(avatarRes);
         
         // 获取详细进度
-        const progressRes = await apiRequest(`/api/v1/avatars/${avatarId}/status?detailed=true`);
+        const progressRes = await apiRequest(`/avatars/${avatarId}/status?detailed=true`);
         if (progressRes.detailed_progress) {
           setProgress(progressRes.detailed_progress);
         }

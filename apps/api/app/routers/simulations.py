@@ -632,15 +632,13 @@ async def _run_quick_simulation(
                         sentiment = 0
                         emotion_emoji = "😐"
                     
-                    # 根据反应类型确定立场
-                    stance_map = {
-                        "support": "support",
-                        "oppose": "oppose", 
-                        "neutral": "neutral",
-                        "amplify": "support",
-                        "question": "neutral"
-                    }
-                    stance = stance_map.get(reaction, "neutral")
+                    # 根据LLM返回的情感值确定立场，而不是随机的reaction_type
+                    if sentiment > 0.2:
+                        stance = "support"
+                    elif sentiment < -0.2:
+                        stance = "oppose"
+                    else:
+                        stance = "neutral"
                     
                     events.append({
                         "step": step,
@@ -790,6 +788,7 @@ async def _run_streaming_simulation(
         "total_avatars": len(avatars),
         "max_steps": max_steps
     })
+    await asyncio.sleep(0.01)  # 强制刷新缓冲区
     
     # 初始化avatar状态
     avatar_states = {}
@@ -821,6 +820,7 @@ async def _run_streaming_simulation(
         "step": 0,
         "is_initiator": True
     })
+    await asyncio.sleep(0.01)  # 强制刷新缓冲区
     
     # 生成初始响应
     try:
@@ -851,6 +851,7 @@ async def _run_streaming_simulation(
         "stance": "neutral",
         "emotion_emoji": initial_response["emotion_emoji"]
     })
+    await asyncio.sleep(0.01)  # 强制刷新缓冲区
     
     messages.append({
         "id": f"msg_init",
@@ -900,6 +901,7 @@ async def _run_streaming_simulation(
                         "from_name": sender["name"],
                         "probability": prob
                     })
+                    await asyncio.sleep(0.01)  # 强制刷新缓冲区
                     
                     # 决定反应类型
                     reaction_types = ["support", "oppose", "neutral", "amplify", "question"]
@@ -917,6 +919,7 @@ async def _run_streaming_simulation(
                         "avatar_name": target["name"],
                         "status": "generating"
                     })
+                    await asyncio.sleep(0.01)  # 强制刷新缓冲区
                     
                     # 使用LLM生成响应
                     try:
@@ -935,15 +938,14 @@ async def _run_streaming_simulation(
                             "emotion_emoji": "😐"
                         }
                     
-                    # 根据反应类型确定立场
-                    stance_map = {
-                        "support": "support",
-                        "oppose": "oppose",
-                        "neutral": "neutral",
-                        "amplify": "support",
-                        "question": "neutral"
-                    }
-                    stance = stance_map.get(reaction, "neutral")
+                    # 根据LLM返回的情感值确定立场，而不是随机的reaction_type
+                    sentiment = llm_response["sentiment"]
+                    if sentiment > 0.2:
+                        stance = "support"
+                    elif sentiment < -0.2:
+                        stance = "oppose"
+                    else:
+                        stance = "neutral"
                     
                     # 发送消息事件
                     msg_data = {
@@ -962,6 +964,7 @@ async def _run_streaming_simulation(
                         "from_name": sender["name"]
                     }
                     yield make_event(StreamEventType.MESSAGE, step, 1, msg_data)
+                    await asyncio.sleep(0.01)  # 强制刷新缓冲区
                     
                     messages.append(msg_data)
                     
@@ -973,9 +976,10 @@ async def _run_streaming_simulation(
                         "probability": prob,
                         "reaction": reaction
                     })
+                    await asyncio.sleep(0.01)  # 强制刷新缓冲区
                     
                     # 小延迟让用户能看到过程
-                    await asyncio.sleep(0.3)
+                    await asyncio.sleep(0.5)
         
         # 更新激活集合
         newly_activated = next_activated - activated
@@ -987,6 +991,7 @@ async def _run_streaming_simulation(
                 "activated_count": len(activated),
                 "new_activations": len(newly_activated)
             })
+            await asyncio.sleep(0.01)  # 强制刷新缓冲区
     
     # 构建最终统计
     nodes = []
@@ -1030,6 +1035,7 @@ async def _run_streaming_simulation(
             "total_messages": len(messages)
         }
     })
+    await asyncio.sleep(0.01)  # 强制刷新缓冲区
 
 
 @router.post("/counterfactual/stream")
@@ -1113,7 +1119,7 @@ async def run_counterfactual_stream(
                 "influence": 0.5
             })
         
-        # 返回流式响应
+        # 返回流式响应 - 禁用所有缓冲
         return StreamingResponse(
             _run_streaming_simulation(
                 content=content,
@@ -1125,9 +1131,12 @@ async def run_counterfactual_stream(
             ),
             media_type="text/event-stream",
             headers={
-                "Cache-Control": "no-cache",
+                "Cache-Control": "no-cache, no-transform",
                 "Connection": "keep-alive",
-                "X-Accel-Buffering": "no"
+                "X-Accel-Buffering": "no",
+                "X-Content-Type-Options": "nosniff",
+                "Pragma": "no-cache",
+                "Expires": "0"
             }
         )
         

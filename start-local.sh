@@ -1,49 +1,6 @@
 #!/bin/bash
 
-# 本地开发模式启动脚本（不使用 Docker）
-# 如需 Docker 部署模式，请使用: ./start-local.sh --docker
-
-# 检查是否是 Docker 模式
-if [ "$1" == "--docker" ] || [ "$1" == "-d" ]; then
-    echo "🐳 Docker 部署模式"
-    echo ""
-    echo "📋 执行步骤:"
-    echo "   1. 停止并移除旧容器"
-    echo "   2. 重新构建 web 服务（使用最新环境变量）"
-    echo "   3. 启动所有服务"
-    echo ""
-    
-    # 停止并移除旧容器
-    echo "🛑 停止旧容器..."
-    docker-compose down
-    
-    # 重新构建 web 服务（无缓存）
-    echo "🔨 重新构建 web 服务..."
-    docker-compose build --no-cache web
-    
-    # 启动所有服务
-    echo "🚀 启动所有服务..."
-    docker-compose up -d
-    
-    echo ""
-    echo "=========================================="
-    echo "✅ Docker 服务已启动!"
-    echo ""
-    echo "📱 Frontend: http://localhost:3000"
-    echo "🔌 API:       http://localhost:8000"
-    echo "📚 API Docs:  http://localhost:8000/docs"
-    echo ""
-    echo "查看日志: docker-compose logs -f web"
-    echo "停止服务: docker-compose down"
-    echo "=========================================="
-    echo ""
-    
-    # 显示 web 服务日志
-    docker-compose logs -f web
-    exit 0
-fi
-
-echo "🚀 Starting Human.online in local mode...
+# 本地开发模式启动脚本
 
 # 检查 .env
 if [ ! -f "apps/api/.env" ]; then
@@ -88,6 +45,9 @@ python -m pip install -r requirements.txt
 echo "🔄 Running database migrations..."
 python -m alembic upgrade head 2>/dev/null || echo "⚠️  Migration skipped"
 
+echo "🎭 Initializing celebrity avatars (if not exists)..."
+python scripts/init_celebrity_avatars.py 2>/dev/null || echo "⚠️  Celebrity avatars init skipped (optional)"
+
 echo "🚀 Starting API server..."
 python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000 &
 API_PID=$!
@@ -98,7 +58,8 @@ echo "📥 Installing Node dependencies..."
 npm install
 
 echo "🚀 Starting Web server..."
-npm run dev &
+# 增加 Node.js 内存限制，启用 Turbopack 加速编译
+NODE_OPTIONS="--max-old-space-size=4096" npm run dev &
 WEB_PID=$!
 
 echo ""

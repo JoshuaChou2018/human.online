@@ -14,6 +14,7 @@ class LLMProvider(str, Enum):
     ANTHROPIC = "anthropic"
     AZURE = "azure"
     LOCAL = "local"
+    DEEPSEEK = "deepseek"
 
 
 @dataclass

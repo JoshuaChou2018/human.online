@@ -97,9 +97,9 @@ export default function ObserverPage() {
   const fetchSandboxData = useCallback(async () => {
     try {
       const [membersData, activitiesData, statsData] = await Promise.all([
-        apiRequest('/api/v1/sandbox/members'),
-        apiRequest('/api/v1/sandbox/activities?limit=50'),
-        apiRequest('/api/v1/sandbox/stats'),
+        apiRequest('/sandbox/members'),
+        apiRequest('/sandbox/activities?limit=50'),
+        apiRequest('/sandbox/stats'),
       ]);
       
       setMembers(membersData);
@@ -219,6 +219,12 @@ export default function ObserverPage() {
                 {isLive ? '实时观测中' : '已暂停'}
               </button>
 
+              <button
+                onClick={() => router.push('/sandbox/live')}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                实时模拟
+              </button>
               <button
                 onClick={() => router.push('/simulate')}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"

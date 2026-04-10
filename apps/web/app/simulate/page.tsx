@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { flushSync } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -792,6 +793,10 @@ export default function SimulatePage() {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // 消息容器 ref，用于自动滚动
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
   // 获取认证头
   const getAuthHeaders = () => {
     const token = useAuthStore.getState().token;
@@ -983,124 +988,141 @@ export default function SimulatePage() {
     }
   };
 
-  // 处理流式事件
+  // 处理流式事件 - 使用 flushSync 确保实时更新
   const handleStreamEvent = (event: any) => {
-    setResult(prev => {
-      if (!prev) return prev;
-      
+    flushSync(() => {
       switch (event.type) {
         case 'start':
-          return {
-            ...prev,
-            id: event.data.simulation_id,
-            scenario: event.data.scenario,
-          };
+          setResult(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              id: event.data.simulation_id,
+              scenario: event.data.scenario,
+            };
+          });
+          break;
           
         case 'node_activate':
-          // 添加或更新节点
-          const existingNodeIndex = prev.nodes.findIndex(n => n.id === event.data.avatar_id);
-          const newNode = {
-            id: event.data.avatar_id,
-            name: event.data.avatar_name,
-            influence: 0.5,
-            emotion: { valence: 0, arousal: 0.5, emoji: '😐' },
-            reaction: 'activated',
-            activation_step: event.data.step,
-          };
-          
-          if (existingNodeIndex >= 0) {
-            const updatedNodes = [...prev.nodes];
-            updatedNodes[existingNodeIndex] = { ...updatedNodes[existingNodeIndex], ...newNode };
-            return { ...prev, nodes: updatedNodes };
-          } else {
-            return { ...prev, nodes: [...prev.nodes, newNode] };
-          }
+          setResult(prev => {
+            if (!prev) return prev;
+            const existingNodeIndex = prev.nodes.findIndex(n => n.id === event.data.avatar_id);
+            const newNode = {
+              id: event.data.avatar_id,
+              name: event.data.avatar_name,
+              influence: 0.5,
+              emotion: { valence: 0, arousal: 0.5, emoji: '😐' },
+              reaction: 'activated',
+              activation_step: event.data.step,
+            };
+            
+            if (existingNodeIndex >= 0) {
+              const updatedNodes = [...prev.nodes];
+              updatedNodes[existingNodeIndex] = { ...updatedNodes[existingNodeIndex], ...newNode };
+              return { ...prev, nodes: updatedNodes };
+            } else {
+              return { ...prev, nodes: [...prev.nodes, newNode] };
+            }
+          });
+          break;
           
         case 'message':
-          // 添加消息
-          const newMessage = {
-            id: event.data.id,
-            avatar_id: event.data.avatar_id,
-            avatar_name: event.data.avatar_name,
-            content: event.data.content,
-            thinking: event.data.thinking,
-            step: event.step,
-            round: event.round,
-            response_type: event.data.response_type,
-            sentiment: event.data.sentiment,
-            stance: event.data.stance,
-            emotion_emoji: event.data.emotion_emoji,
-          };
-          
-          // 更新节点表情
-          const nodeIndex = prev.nodes.findIndex(n => n.id === event.data.avatar_id);
-          let updatedNodes = prev.nodes;
-          if (nodeIndex >= 0) {
-            updatedNodes = [...prev.nodes];
-            updatedNodes[nodeIndex] = {
-              ...updatedNodes[nodeIndex],
-              emotion: {
-                ...updatedNodes[nodeIndex].emotion,
-                valence: event.data.sentiment,
-                emoji: event.data.emotion_emoji,
+          // 同时更新步骤和结果，确保同步
+          setCurrentStep(event.step);
+          setResult(prev => {
+            if (!prev) return prev;
+            
+            const newMessage = {
+              id: event.data.id,
+              avatar_id: event.data.avatar_id,
+              avatar_name: event.data.avatar_name,
+              content: event.data.content,
+              thinking: event.data.thinking,
+              step: event.step,
+              round: event.round,
+              response_type: event.data.response_type,
+              sentiment: event.data.sentiment,
+              stance: event.data.stance,
+              emotion_emoji: event.data.emotion_emoji,
+            };
+            
+            // 更新节点表情
+            const nodeIndex = prev.nodes.findIndex(n => n.id === event.data.avatar_id);
+            let updatedNodes = prev.nodes;
+            if (nodeIndex >= 0) {
+              updatedNodes = [...prev.nodes];
+              updatedNodes[nodeIndex] = {
+                ...updatedNodes[nodeIndex],
+                emotion: {
+                  ...updatedNodes[nodeIndex].emotion,
+                  valence: event.data.sentiment,
+                  emoji: event.data.emotion_emoji,
+                }
+              };
+            }
+            
+            return {
+              ...prev,
+              nodes: updatedNodes,
+              messages: [...prev.messages, newMessage],
+              stats: {
+                ...prev.stats,
+                total_messages: prev.stats.total_messages + 1,
               }
             };
-          }
-          
-          // 自动跟随最新步骤
-          setCurrentStep(event.step);
-          
-          return {
-            ...prev,
-            nodes: updatedNodes,
-            messages: [...prev.messages, newMessage],
-            stats: {
-              ...prev.stats,
-              total_messages: prev.stats.total_messages + 1,
-            }
-          };
+          });
+          break;
           
         case 'edge_create':
-          // 添加边
-          const newEdge = {
-            source: event.data.source,
-            target: event.data.target,
-            step: event.data.step,
-            probability: event.data.probability,
-            reaction: event.data.reaction,
-          };
-          return {
-            ...prev,
-            edges: [...prev.edges, newEdge],
-          };
+          setResult(prev => {
+            if (!prev) return prev;
+            const newEdge = {
+              source: event.data.source,
+              target: event.data.target,
+              step: event.data.step,
+              probability: event.data.probability,
+              reaction: event.data.reaction,
+            };
+            return {
+              ...prev,
+              edges: [...prev.edges, newEdge],
+            };
+          });
+          break;
           
         case 'step_complete':
-          // 更新当前步骤
           setCurrentStep(event.step);
-          return {
-            ...prev,
-            stats: {
-              ...prev.stats,
-              total_reach: event.data.activated_count,
-            }
-          };
+          setResult(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              stats: {
+                ...prev.stats,
+                total_reach: event.data.activated_count,
+              }
+            };
+          });
+          break;
           
         case 'complete':
-          // 模拟完成，更新所有数据
-          return {
-            ...prev,
-            nodes: event.data.nodes || prev.nodes,
-            edges: event.data.edges || prev.edges,
-            messages: event.data.messages || prev.messages,
-            stats: event.data.stats || prev.stats,
-          };
+          setResult(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              nodes: event.data.nodes || prev.nodes,
+              edges: event.data.edges || prev.edges,
+              messages: event.data.messages || prev.messages,
+              stats: event.data.stats || prev.stats,
+            };
+          });
+          break;
           
         case 'error':
           toast.error(event.data.error || '模拟出错');
-          return prev;
+          break;
           
         default:
-          return prev;
+          break;
       }
     });
   };
@@ -1138,6 +1160,13 @@ export default function SimulatePage() {
     if (!result?.timeline) return null;
     return result.timeline.find(t => t.step === currentStep && t.round === currentRound) || result.timeline[result.timeline.length - 1];
   }, [result, currentStep, currentRound]);
+
+  // 自动滚动消息到最新
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [result?.messages, currentStep]);
 
   // 设置步骤
   const [setupStep, setSetupStep] = useState(1);
@@ -1509,20 +1538,23 @@ export default function SimulatePage() {
               </Card>
 
               {/* 消息流 */}
-              <Card className="p-4 flex-1">
+              <Card className="p-4 flex-1 flex flex-col min-h-[500px]">
                 <h3 className="font-medium mb-3 flex items-center gap-2">
                   <MessageCircle className="w-4 h-4 text-indigo-600" />
                   当前对话
                 </h3>
-                <div className="space-y-3 max-h-[400px] overflow-auto">
+                <div 
+                  ref={messagesContainerRef}
+                  className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-1"
+                >
                   {result.messages
                     .filter(m => m.step <= currentStep && m.round <= currentRound)
-                    .slice(-5)
                     .map((msg, idx) => (
                       <motion.div
                         key={msg.id}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: idx * 0.05 }}
                         className={cn(
                           "p-3 rounded-lg text-sm",
                           msg.stance === 'support' ? 'bg-green-50 border border-green-200' :
@@ -1560,6 +1592,7 @@ export default function SimulatePage() {
                         <p className="text-slate-800">{msg.content}</p>
                       </motion.div>
                     ))}
+                  <div ref={messagesEndRef} />
                 </div>
               </Card>
 

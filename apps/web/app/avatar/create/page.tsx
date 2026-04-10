@@ -70,7 +70,7 @@ export default function CreateAvatarPage() {
 
   const loadDataSources = useCallback(async () => {
     try {
-      const data = await apiRequest('/api/v1/user/data');
+      const data = await apiRequest('/user/data');
       // 只显示已处理完成的数据
       const completed = data.filter((ds: DataSource) => ds.status === 'completed');
       setDataSources(completed);

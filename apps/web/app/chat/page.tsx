@@ -23,6 +23,7 @@ interface Message {
   sender_id: string;
   sender_name?: string;
   content: string;
+  is_user?: boolean;  // 是否是用户发送的消息
   emotion_state?: { pleasure: number; arousal: number; dominance: number };
   created_at: string;
 }
@@ -59,7 +60,7 @@ export default function ChatPage() {
   // 加载分身列表
   const loadAvatars = useCallback(async () => {
     try {
-      const data = await apiRequest('/api/v1/avatars/my/avatars');
+      const data = await apiRequest('/avatars/my/avatars');
       setAvatars(data);
     } catch (error) {
       console.error('Failed to load avatars:', error);
@@ -69,7 +70,7 @@ export default function ChatPage() {
   // 加载对话列表
   const loadConversations = useCallback(async () => {
     try {
-      const data = await apiRequest('/api/v1/conversations');
+      const data = await apiRequest('/conversations');
       // API 返回的是数组或对象格式 { items: [...] }
       setConversations(Array.isArray(data) ? data : (data.items || []));
     } catch (error) {
@@ -81,7 +82,7 @@ export default function ChatPage() {
   const loadMessages = useCallback(async (conversationId: string) => {
     setIsLoading(true);
     try {
-      const data = await apiRequest(`/api/v1/conversations/${conversationId}/messages`);
+      const data = await apiRequest(`/conversations/${conversationId}/messages`);
       setMessages(data);
     } catch (error) {
       console.error('Failed to load messages:', error);
@@ -121,7 +122,7 @@ export default function ChatPage() {
     }
     
     try {
-      const data = await apiRequest('/api/v1/conversations', {
+      const data = await apiRequest('/conversations', {
         method: 'POST',
         body: JSON.stringify({
           participant_ids: [avatarId],
@@ -156,7 +157,7 @@ export default function ChatPage() {
     
     setDeletingConversation(conversationId);
     try {
-      await apiRequest(`/api/v1/conversations/${conversationId}`, {
+      await apiRequest(`/conversations/${conversationId}`, {
         method: 'DELETE',
       });
       
@@ -193,7 +194,7 @@ export default function ChatPage() {
     try {
       // 串行删除所有对话
       for (const conversation of conversations) {
-        await apiRequest(`/api/v1/conversations/${conversation.id}`, {
+        await apiRequest(`/conversations/${conversation.id}`, {
           method: 'DELETE',
         });
       }
@@ -226,13 +227,14 @@ export default function ChatPage() {
       conversation_id: selectedConversation,
       sender_id: selectedAvatarId || 'user',
       content,
+      is_user: true,  // 标记为用户消息
       created_at: new Date().toISOString(),
     };
     setMessages(prev => [...prev, tempUserMessage]);
     
     try {
       // 发送消息到 API
-      const data = await apiRequest(`/api/v1/conversations/${selectedConversation}/messages`, {
+      const data = await apiRequest(`/conversations/${selectedConversation}/messages`, {
         method: 'POST',
         body: JSON.stringify({ content }),
       });

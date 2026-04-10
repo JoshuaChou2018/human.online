@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings, check_llm_config
 from app.core.database import init_db, close_db, init_mongodb, close_mongodb, init_redis, close_redis
-from app.routers import auth, avatars, data_sources, conversations, simulations, websocket, market, user_data, sandbox, counterfactual
+from app.routers import auth, avatars, data_sources, conversations, simulations, websocket, market, user_data, sandbox, counterfactual, sandbox_simulation
 from app.services.llm import init_llm_clients
 
 
@@ -110,6 +110,7 @@ app.include_router(user_data.router, prefix="/api/v1")
 app.include_router(conversations.router, prefix="/api/v1")
 app.include_router(simulations.router, prefix="/api/v1")
 app.include_router(sandbox.router, prefix="/api/v1")
+app.include_router(sandbox_simulation.router, prefix="/api/v1")
 app.include_router(counterfactual.router, prefix="/api/v1")
 app.include_router(market.router, prefix="/api/v1")
 

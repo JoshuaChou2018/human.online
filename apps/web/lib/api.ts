@@ -4,7 +4,9 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
 // API 基础配置
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+// API 基础配置（使用相对路径，通过 Next.js rewrite 转发到后端）
+// 本地开发如需直接访问后端，可设为: http://localhost:8000/api/v1
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 // 创建 axios 实例
 const apiClient: AxiosInstance = axios.create({

@@ -198,6 +198,7 @@ class ChatMessageResponse(BaseModel):
     sender_id: UUID
     sender_name: str
     content: str
+    is_user: bool = False  # 是否是用户发送的消息
     emotion_state: Optional[Dict[str, float]] = None
     provider_used: Optional[str] = None  # 实际使用的 LLM 提供商
     created_at: datetime

@@ -32,7 +32,7 @@ async def create_conversation(
     current_user: User = Depends(get_current_user)
 ):
     """创建新对话"""
-    participant_ids = request.participant_ids
+    participant_ids = list(request.participant_ids)  # 复制列表
     title = request.title
     
     # 验证所有参与者是否存在
@@ -52,6 +52,20 @@ async def create_conversation(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Not authorized to chat with avatar {avatar_id}"
             )
+    
+    # 获取用户的个人分身并添加到参与者列表
+    user_avatar_result = await db.execute(
+        select(Avatar).where(
+            and_(
+                Avatar.user_id == current_user.id,
+                Avatar.avatar_type == "personal"
+            )
+        ).limit(1)
+    )
+    user_avatar = user_avatar_result.scalar_one_or_none()
+    
+    if user_avatar and user_avatar.id not in participant_ids:
+        participant_ids.append(user_avatar.id)
     
     # 确定对话类型
     conv_type = ConversationType.GROUP if len(participant_ids) > 1 else ConversationType.PRIVATE
@@ -216,6 +230,18 @@ async def get_messages(
     result = await db.execute(query)
     messages = result.scalars().all()
     
+    # 获取用户的个人分身ID
+    user_avatar_result = await db.execute(
+        select(Avatar).where(
+            and_(
+                Avatar.user_id == current_user.id,
+                Avatar.avatar_type == "personal"
+            )
+        ).limit(1)
+    )
+    user_avatar = user_avatar_result.scalar_one_or_none()
+    user_avatar_id = user_avatar.id if user_avatar else None
+    
     # 构建响应
     response = []
     for msg in reversed(messages):  # 返回时间正序
@@ -224,12 +250,32 @@ async def get_messages(
         )
         sender = sender_result.scalar_one_or_none()
         
+        # 判断是否是 AI 消息（优先检查 metadata）
+        is_ai_message = msg.message_metadata and msg.message_metadata.get("is_ai", False)
+        
+        # 判断是否是当前用户发送的消息（优先检查 metadata 中的 is_user 标记）
+        is_user_message = msg.message_metadata and msg.message_metadata.get("is_user", False)
+        
+        # 如果没有明确标记，使用旧逻辑：不是 AI 消息且 sender_id 匹配用户的 personal 分身
+        if not is_user_message and not is_ai_message:
+            is_user_message = bool(user_avatar_id and msg.sender_id == user_avatar_id)
+        
+        if is_user_message:
+            sender_name = "You"
+        elif is_ai_message and sender:
+            sender_name = sender.name  # AI 消息显示分身名称
+        elif sender:
+            sender_name = sender.name
+        else:
+            sender_name = "Unknown"
+        
         response.append(ChatMessageResponse(
             id=msg.id,
             conversation_id=msg.conversation_id,
             sender_id=msg.sender_id,
-            sender_name=sender.name if sender else "Unknown",
+            sender_name=sender_name,
             content=msg.content,
+            is_user=is_user_message,
             emotion_state=msg.emotion_state,
             created_at=msg.created_at
         ))
@@ -284,25 +330,30 @@ async def send_message(
     else:
         user_avatar_id = user_avatar.id
     
-    # 保存用户消息
+    # 保存用户消息（标记 is_user 以便区分）
     user_message = Message(
         conversation_id=conversation_id,
         sender_id=user_avatar_id,
-        content=data.content
+        content=data.content,
+        message_metadata={"is_user": True}
     )
     db.add(user_message)
     conversation.message_count += 1
     await db.commit()
     await db.refresh(user_message)
     
-    # 生成 AI 响应（每个参与者都回复）
+    # 生成 AI 响应（每个非用户参与者都回复）
     ai_responses = []
     provider_used = None
     
-    for avatar_id in conversation.participant_ids:
-        if avatar_id == user_avatar_id:
-            continue
-        
+    # 确定哪些分身需要回复（排除用户分身，但如果只有用户分身则使用它）
+    ai_avatar_ids = [aid for aid in conversation.participant_ids if aid != user_avatar_id]
+    
+    # 如果只有用户分身（没有独立的AI分身），则用户分身也作为AI回复
+    if not ai_avatar_ids and conversation.participant_ids:
+        ai_avatar_ids = conversation.participant_ids
+    
+    for avatar_id in ai_avatar_ids:
         # 获取分身信息
         avatar_result = await db.execute(select(Avatar).where(Avatar.id == avatar_id))
         avatar = avatar_result.scalar_one_or_none()
@@ -348,6 +399,7 @@ async def send_message(
             sender_id=ai_message.sender_id,
             sender_name=avatar.name,
             content=ai_message.content,
+            is_user=False,  # AI 消息
             emotion_state=ai_message.emotion_state,
             provider_used=provider_used,
             created_at=ai_message.created_at
@@ -363,6 +415,7 @@ async def send_message(
         sender_id=user_message.sender_id,
         sender_name="You",
         content=user_message.content,
+        is_user=True,  # 用户消息
         created_at=user_message.created_at
     )
 

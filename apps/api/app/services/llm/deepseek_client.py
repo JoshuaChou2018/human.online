@@ -21,7 +21,7 @@ class DeepSeekClient(BaseLLMClient):
     - 性价比高
     """
     
-    provider = LLMProvider.OPENAI  # 复用 OPENAI provider 类型
+    provider = LLMProvider.DEEPSEEK
     BASE_URL = "https://api.deepseek.com/v1"
     
     # 可用模型

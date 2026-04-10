@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthState>()(
         if (!token) return false;
 
         try {
-          const response = await fetch(`${API_URL}/api/v1/auth/me`, {
+          const response = await fetch(`${API_URL}/auth/me`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
@@ -123,7 +123,7 @@ export async function apiRequest(
 
 // 邮箱注册
 export async function register(email: string, password: string, displayName?: string): Promise<{ token: string; user: User }> {
-  const response = await fetch(`${API_URL}/api/v1/auth/register`, {
+  const response = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ export async function register(email: string, password: string, displayName?: st
 
 // 邮箱登录
 export async function login(email: string, password: string): Promise<{ token: string; user: User }> {
-  const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+  const response = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -168,7 +168,7 @@ export async function login(email: string, password: string): Promise<{ token: s
 // Demo 登录
 export async function demoLogin(): Promise<{ token: string; user: User }> {
   try {
-    const response = await fetch(`${API_URL}/api/v1/auth/demo`, {
+    const response = await fetch(`${API_URL}/auth/demo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

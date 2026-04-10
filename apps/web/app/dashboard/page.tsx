@@ -77,8 +77,8 @@ export default function DashboardPage() {
     
     try {
       const [sourcesData, avatarsData] = await Promise.all([
-        apiRequest('/api/v1/user/data'),
-        apiRequest('/api/v1/avatars/my/avatars'),
+        apiRequest('/user/data'),
+        apiRequest('/avatars/my/avatars'),
       ]);
       
       setDataSources(sourcesData);
@@ -99,7 +99,7 @@ export default function DashboardPage() {
     
     try {
       console.log('Deleting data source:', id);
-      await apiRequest(`/api/v1/user/data/${id}`, { method: 'DELETE' });
+      await apiRequest(`/user/data/${id}`, { method: 'DELETE' });
       setDataSources(prev => prev.filter(ds => ds.id !== id));
       console.log('Data source deleted successfully');
     } catch (error) {
@@ -112,7 +112,7 @@ export default function DashboardPage() {
     if (!confirm('确定要永久删除这个分身吗？此操作不可恢复！')) return;
     
     try {
-      await apiRequest(`/api/v1/avatars/${id}`, { method: 'DELETE' });
+      await apiRequest(`/avatars/${id}`, { method: 'DELETE' });
       // 从列表中移除
       setAvatars(prev => prev.filter(a => a.id !== id));
       // 刷新数据
@@ -136,7 +136,7 @@ export default function DashboardPage() {
     if (!confirm('确定要重建这个分身吗？这将使用当前的数据重新编织。')) return;
     
     try {
-      await apiRequest(`/api/v1/avatars/${id}/rebuild`, { method: 'POST' });
+      await apiRequest(`/avatars/${id}/rebuild`, { method: 'POST' });
       alert('重建已启动，请稍后查看状态');
       loadData();
     } catch (error) {
@@ -540,7 +540,7 @@ function UploadModal({
       const { token } = useAuthStore.getState();
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-      const response = await fetch(`${API_URL}/api/v1/user/data/upload`, {
+      const response = await fetch(`${API_URL}/v1/user/data/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -706,7 +706,7 @@ function EditAvatarModal({
       const { token } = useAuthStore.getState();
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-      const response = await fetch(`${API_URL}/api/v1/avatars/${avatar.id}/data-sources`, {
+      const response = await fetch(`${API_URL}/v1/avatars/${avatar.id}/data-sources`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -736,7 +736,7 @@ function EditAvatarModal({
       const { token } = useAuthStore.getState();
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-      const response = await fetch(`${API_URL}/api/v1/avatars/${avatar.id}/visibility`, {
+      const response = await fetch(`${API_URL}/v1/avatars/${avatar.id}/visibility`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -770,7 +770,7 @@ function EditAvatarModal({
       formData.append('description', uploadDesc);
       formData.append('source_type', 'document');
 
-      const uploadRes = await fetch(`${API_URL}/api/v1/user/data/upload`, {
+      const uploadRes = await fetch(`${API_URL}/v1/user/data/upload`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -785,7 +785,7 @@ function EditAvatarModal({
       const updateFormData = new FormData();
       updateFormData.append('data_source_ids', newDataIds.join(','));
 
-      const updateRes = await fetch(`${API_URL}/api/v1/avatars/${avatar.id}/data-sources`, {
+      const updateRes = await fetch(`${API_URL}/v1/avatars/${avatar.id}/data-sources`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: updateFormData,

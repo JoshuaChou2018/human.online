@@ -66,7 +66,14 @@ async def generate_avatar_response(
             llm_provider = LLMProvider(provider.lower())
         
         # 获取客户端并生成回复
-        client = llm_manager.get_client(llm_provider)
+        try:
+            client = llm_manager.get_client(llm_provider)
+        except ValueError as e:
+            # 如果客户端未注册，尝试重新初始化
+            print(f"[Chat] LLM client not initialized, reinitializing...")
+            from app.services.llm import init_llm_clients
+            init_llm_clients()
+            client = llm_manager.get_client(llm_provider)
         
         print(f"[Chat] Generating response using {client.provider.value} for avatar {avatar.name}")
         

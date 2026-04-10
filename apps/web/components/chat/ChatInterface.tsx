@@ -17,6 +17,7 @@ interface ChatMessage {
   sender_id: string;
   sender_name?: string;
   content: string;
+  is_user?: boolean;  // 是否是用户发送的消息
   emotion_state?: { pleasure: number; arousal: number; dominance: number };
   created_at: string;
 }
@@ -104,7 +105,7 @@ export function ChatInterface({
         )}
 
         {messages.map((message, index) => {
-          const isCurrentUser = message.sender_name === 'You';
+          const isCurrentUser = message.is_user;
           const showAvatar = index === 0 || messages[index - 1].sender_id !== message.sender_id;
 
           return (
