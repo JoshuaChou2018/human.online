@@ -3,6 +3,7 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: humanonline-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -21,6 +22,7 @@ services:
   mongodb:
     image: mongo:7-jammy
     container_name: humanonline-mongodb
+    restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin
@@ -38,6 +40,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: humanonline-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
@@ -54,6 +57,7 @@ services:
       context: ./apps/api
       dockerfile: Dockerfile
     container_name: humanonline-api
+    restart: unless-stopped
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/humanonline
       - MONGODB_URL=mongodb://admin:admin@mongodb:27017/humanonline?authSource=admin
@@ -88,6 +92,7 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=http://humind.life:8000
     container_name: humanonline-web
+    restart: unless-stopped
     environment:
       - NEXT_PUBLIC_API_URL=http://humind.life:8000
     ports:
@@ -105,6 +110,7 @@ services:
       context: ./apps/api
       dockerfile: Dockerfile
     container_name: humanonline-celery
+    restart: unless-stopped
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/humanonline
       - MONGODB_URL=mongodb://admin:admin@mongodb:27017/humanonline?authSource=admin

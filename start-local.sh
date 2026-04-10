@@ -13,6 +13,12 @@ fi
 echo "📦 Starting databases with Docker..."
 docker-compose up -d postgres mongodb redis
 
+# 设置数据库容器自动重启策略（防止意外停止）
+echo "🔧 Setting restart policy for databases..."
+docker update --restart=unless-stopped humanonline-postgres 2>/dev/null || true
+docker update --restart=unless-stopped humanonline-mongodb 2>/dev/null || true
+docker update --restart=unless-stopped humanonline-redis 2>/dev/null || true
+
 # 等待数据库就绪
 echo "⏳ Waiting for databases..."
 sleep 5
