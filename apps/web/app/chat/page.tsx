@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Sparkles, Plus, Search, MessageSquare, Trash2, Loader2 } from 'lucide-react';
 import { ChatInterface } from '@/components/chat/ChatInterface';
+import { BackToHome } from '@/components/BackToHome';
 import { cn } from '@/lib/utils';
 import { apiRequest, useAuthStore } from '@/lib/auth';
 import { toast } from 'sonner';
@@ -274,6 +275,7 @@ export default function ChatPage() {
 
   return (
     <div className="h-screen flex bg-slate-50">
+      <BackToHome />
       {/* 侧边栏 */}
       <div className="w-80 bg-white border-r flex flex-col">
         {/* 头部 */}

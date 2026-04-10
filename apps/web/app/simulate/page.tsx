@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { flushSync } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { BackToHome } from "@/components/BackToHome";
 import {
   ArrowLeft,
   Users,
@@ -1175,6 +1176,7 @@ export default function SimulatePage() {
   if (mode === 'setup') {
     return (
       <div className="min-h-screen bg-slate-50">
+        <BackToHome />
         <header className="bg-white border-b sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -1430,6 +1432,7 @@ export default function SimulatePage() {
   // 渲染结果界面
   return (
     <div className="min-h-screen bg-slate-50">
+      <BackToHome />
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">

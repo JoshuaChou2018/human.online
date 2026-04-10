@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BackToHome } from '@/components/BackToHome';
 import {
   Upload,
   FileText,
@@ -162,6 +163,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <BackToHome />
       {/* Header */}
       <header className="bg-white border-b sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -540,7 +542,7 @@ function UploadModal({
       const { token } = useAuthStore.getState();
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-      const response = await fetch(`${API_URL}/v1/user/data/upload`, {
+      const response = await fetch('/api/v1/user/data/upload', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -706,7 +708,7 @@ function EditAvatarModal({
       const { token } = useAuthStore.getState();
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-      const response = await fetch(`${API_URL}/v1/avatars/${avatar.id}/data-sources`, {
+      const response = await fetch(`/api/v1/avatars/${avatar.id}/data-sources`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -736,7 +738,7 @@ function EditAvatarModal({
       const { token } = useAuthStore.getState();
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-      const response = await fetch(`${API_URL}/v1/avatars/${avatar.id}/visibility`, {
+      const response = await fetch(`/api/v1/avatars/${avatar.id}/visibility`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -770,7 +772,7 @@ function EditAvatarModal({
       formData.append('description', uploadDesc);
       formData.append('source_type', 'document');
 
-      const uploadRes = await fetch(`${API_URL}/v1/user/data/upload`, {
+      const uploadRes = await fetch('/api/v1/user/data/upload', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -785,7 +787,7 @@ function EditAvatarModal({
       const updateFormData = new FormData();
       updateFormData.append('data_source_ids', newDataIds.join(','));
 
-      const updateRes = await fetch(`${API_URL}/v1/avatars/${avatar.id}/data-sources`, {
+      const updateRes = await fetch(`/api/v1/avatars/${avatar.id}/data-sources`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: updateFormData,

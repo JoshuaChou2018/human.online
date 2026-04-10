@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BackToHome } from '@/components/BackToHome';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
@@ -168,6 +169,7 @@ export default function ObserverPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
+      <BackToHome className="bg-slate-800/90 border-slate-700 text-white hover:bg-slate-700" />
       {/* Header */}
       <header className="bg-slate-900/50 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -219,12 +221,6 @@ export default function ObserverPage() {
                 {isLive ? '实时观测中' : '已暂停'}
               </button>
 
-              <button
-                onClick={() => router.push('/sandbox/live')}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                实时模拟
-              </button>
               <button
                 onClick={() => router.push('/simulate')}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"

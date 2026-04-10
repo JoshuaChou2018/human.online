@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { BackToHome } from '@/components/BackToHome';
 import { 
   Search, 
   Filter, 
@@ -122,6 +123,7 @@ export default function MarketPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <BackToHome />
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white">
         <div className="max-w-7xl mx-auto px-6 py-16">

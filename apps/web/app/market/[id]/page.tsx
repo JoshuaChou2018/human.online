@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { BackToHome } from '@/components/BackToHome';
 import { 
   Star, Users, MessageSquare, ArrowLeft, Sparkles,
   MessageCircle, Edit2, Trash2, X, Check, Send
@@ -233,6 +234,7 @@ export default function AvatarDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <BackToHome />
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <button

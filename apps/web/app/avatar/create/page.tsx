@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BackToHome } from '@/components/BackToHome';
 import { 
   Upload, 
   FileText, 
@@ -227,6 +228,7 @@ export default function CreateAvatarPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <BackToHome />
       {/* 头部 */}
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">

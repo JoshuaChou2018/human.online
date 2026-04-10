@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BackToHome } from '@/components/BackToHome';
 import {
   Sparkles,
   Play,
@@ -275,6 +276,7 @@ export default function CounterfactualPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <BackToHome />
       {/* Header */}
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
