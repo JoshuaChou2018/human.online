@@ -221,11 +221,21 @@ function NetworkNodeContent({
   currentMessages: SimulationMessage[];
 }) {
   const size = Math.max(28, Math.min(52, node.influence * 4 + 20));
-  const getEmotionColor = (valence: number) => {
-    if (valence > 0.3) return "#22c55e";
-    if (valence < -0.3) return "#ef4444";
-    return "#64748b";
+  
+  // 根据 stance（支持/反对/中立）显示颜色
+  const getStanceColor = (stance: string) => {
+    switch (stance) {
+      case 'support': return "#22c55e";  // 绿色 - 支持
+      case 'oppose': return "#ef4444";   // 红色 - 反对
+      default: return "#64748b";         // 灰色 - 中立
+    }
   };
+  
+  // 获取当前节点最新消息的立场
+  const latestMessage = currentMessages
+    .filter(m => m.avatar_id === node.id)
+    .slice(-1)[0];
+  const stance = latestMessage?.stance || 'neutral';
 
   return (
     <g opacity={isActive ? 1 : 0.3}>
@@ -242,20 +252,20 @@ function NetworkNodeContent({
         />
       )}
       
-      {/* 外圈 - 情绪颜色 */}
+      {/* 外圈 - 立场颜色（支持/反对/中立） */}
       <circle
         r={size + 4}
         fill="none"
-        stroke={getEmotionColor(node.emotion.valence)}
+        stroke={getStanceColor(stance)}
         strokeWidth={2}
         opacity={0.3}
       />
       
-      {/* 节点圆形 */}
+      {/* 节点圆形 - 立场颜色 */}
       <circle
         r={size}
         fill="white"
-        stroke={getEmotionColor(node.emotion.valence)}
+        stroke={getStanceColor(stance)}
         strokeWidth={3}
         className="transition-all duration-300 shadow-lg"
         filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"
@@ -312,7 +322,7 @@ function NetworkNodeContent({
         textAnchor="middle"
         dy={size + 24}
         fontSize="13"
-        fill="#334155"
+        fill={getStanceColor(stance)}
         fontWeight={isActive ? "bold" : "normal"}
         style={{ userSelect: 'none' }}
       >
@@ -690,21 +700,21 @@ function PropagationNetwork({
         </g>
       </svg>
 
-      {/* 图例 */}
+      {/* 图例 - 立场分布 */}
       <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur rounded-xl p-4 shadow-lg border text-sm">
-        <p className="font-medium text-slate-700 mb-2">图例</p>
+        <p className="font-medium text-slate-700 mb-2">立场分布</p>
         <div className="space-y-2 text-xs">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-green-400" />
-            <span className="text-slate-600">积极情绪</span>
+            <span className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="text-slate-600">支持</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-slate-400" />
-            <span className="text-slate-600">中性情绪</span>
+            <span className="text-slate-600">中立</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-red-400" />
-            <span className="text-slate-600">消极情绪</span>
+            <span className="w-3 h-3 rounded-full bg-red-500" />
+            <span className="text-slate-600">反对</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-4 h-0.5 bg-indigo-500" />

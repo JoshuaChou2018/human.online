@@ -25,7 +25,7 @@ export default function TermsPage() {
       <main className="max-w-4xl mx-auto px-6 py-12">
         <div className="bg-white rounded-2xl shadow-sm border p-8 md:p-12">
           <h1 className="text-3xl font-bold text-slate-900 mb-4">服务条款</h1>
-          <p className="text-slate-500 mb-8">最后更新日期：2024年1月</p>
+          <p className="text-slate-500 mb-8">最后更新日期：2026年4月10日</p>
 
           <div className="prose prose-slate max-w-none">
             <p className="text-slate-600 leading-relaxed mb-6">
@@ -129,7 +129,7 @@ export default function TermsPage() {
       {/* Footer */}
       <footer className="py-8 px-6 border-t bg-white">
         <div className="max-w-4xl mx-auto text-center text-sm text-slate-500">
-          <p>© 2024 Human.online. All rights reserved.</p>
+          <p>© 2026 Human.online. All rights reserved.</p>
         </div>
       </footer>
     </div>
